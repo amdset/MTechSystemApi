@@ -6,6 +6,8 @@ namespace MTechSystemApi.DataAccess
     {
         Task<List<T>> LoadData<T>(string sql, object parameters, string connMysql);
 
+        Task<T> LoadSigleRaw<T>(string sql, object parameters, string connMysql);
+
         Task<int> SaveData<T>(string sql, object parameters, string connMysql);
     }
 }

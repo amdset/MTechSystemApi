@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using MTechSystemApi.DataAccess;
 using MTechSystemApi.Models;
+using MTechSystemApi.Services;
 
 // For more information on enabling Web API for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -10,50 +11,75 @@ namespace MTechSystemApi.Controllers
     [ApiController]
     public class EmployeeController : ControllerBase
     {
-        private readonly IDataAccess _dataAccess;
-        private readonly IConfiguration _configuration;
+        private readonly IEmployeeService _employeeService;
 
-        public EmployeeController(IDataAccess dataAccess, IConfiguration configuration)
+        public EmployeeController(IEmployeeService employeeService)
         {
-            _dataAccess=dataAccess;
-            _configuration=configuration;
+            _employeeService = employeeService;
         }
 
 
         // GET: api/<EmployeeController>
         [HttpGet]
-        public async Task< ActionResult< List<Employee>>> Get()
+        public async Task<ActionResult<List<EmployeeEntity>>> Get()
         {
-            string sql = "SELECT * FROM Employee";
-            string conn = _configuration.GetConnectionString("mysql_conn_db");
-            var lstEmployees = await _dataAccess.LoadData<Employee>(sql, null, conn);
-            return lstEmployees;
+            return await _employeeService.GetAll();
         }
 
         // GET api/<EmployeeController>/5
         [HttpGet("{id}")]
-        public string Get(int id)
+        public async Task<ActionResult<EmployeeEntity>> Get(int id)
         {
-            return "value";
+            var employee = await _employeeService.GetById(id);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+
+            return employee;
         }
 
         // POST api/<EmployeeController>
-        [HttpPost]
-        public void Post([FromBody] Employee employee)
+        [HttpPost(Name = nameof(Post))]
+        public async Task<ActionResult<EmployeeEntity>> Post([FromBody] EmployeeEntity employee)
         {
+            if ((int)employee.Status <= 0 || (int)employee.Status >= 3)
+            {
+                employee.Status = EmployeeStatus.NotSet;
+            }
+            var newEmployee = await _employeeService.Save(employee);
+            if (newEmployee == null)
+            {
+                return new StatusCodeResult(500);
+            }
 
+            newEmployee.Href = Url.Link(nameof(Post), null);
+            return newEmployee;
         }
 
         // PUT api/<EmployeeController>/5
         [HttpPut("{id}")]
-        public void Put(int id, [FromBody] string value)
+        public async Task<ActionResult> Put(int id, [FromBody] EmployeeEntity employee)
         {
+            var result =  await _employeeService.Update(id, employee);
+            if (!result)
+            {
+                return NotFound();
+            }
+            return Ok();
         }
 
         // DELETE api/<EmployeeController>/5
         [HttpDelete("{id}")]
-        public void Delete(int id)
+        public async Task<ActionResult<bool>> Delete(int id)
         {
+            var result = await _employeeService.DeleteById(id);
+            if (!result)
+            {
+                return NotFound();
+            }
+
+            return Ok(result);
         }
     }
 }

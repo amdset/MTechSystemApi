@@ -16,6 +16,15 @@ namespace MTechSystemApi.DataAccess
             }
         }
 
+        public async Task<T> LoadSigleRaw<T>(string sql, object parameters, string connMysql)
+        {
+            using (IDbConnection connection = new MySqlConnection(connMysql))
+            {
+                var result = await connection.QueryAsync<T>(sql, parameters);
+                return result.FirstOrDefault();
+            }
+        }
+
         public async Task<int> SaveData<T>(string sql, object parameters, string connMysql)
         {
            using(IDbConnection connection =new MySqlConnection(connMysql))

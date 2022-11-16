@@ -1,4 +1,5 @@
 using MTechSystemApi.DataAccess;
+using MTechSystemApi.Filters;
 using MTechSystemApi.Infrastructure;
 using MTechSystemApi.Services;
 
@@ -14,6 +15,9 @@ builder.Services.AddSingleton<IDataAccess, MysqlDataAccess>();
 builder.Services.AddSingleton<IEmployeeService, EmployeeService>();
 builder.Services.AddAutoMapper(options =>
            options.AddProfile<MappingProfile>());
+builder.Services.AddMvc(options => {
+    options.Filters.Add<JsonExceptionFilter>();
+});
 
 var app = builder.Build();
 

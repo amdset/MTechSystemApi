@@ -22,7 +22,7 @@ namespace MTechSystemApi.Controllers
 
 
         // GET: api/<EmployeeController>
-        [HttpGet("{name}")]
+        [HttpGet("{name?}")]
         public async Task<ActionResult<List<EmployeeEntity>>> Get(string name = "")
         {
             return await _employeeService.GetAll(name);

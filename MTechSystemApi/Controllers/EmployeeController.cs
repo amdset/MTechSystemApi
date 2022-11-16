@@ -22,15 +22,15 @@ namespace MTechSystemApi.Controllers
 
 
         // GET: api/<EmployeeController>
-        [HttpGet]
-        public async Task<ActionResult<List<EmployeeEntity>>> Get()
+        [HttpGet("{name}")]
+        public async Task<ActionResult<List<EmployeeEntity>>> Get(string name = "")
         {
-            return await _employeeService.GetAll();
+            return await _employeeService.GetAll(name);
         }
 
         // GET api/<EmployeeController>/5
-        [HttpGet("{id}", Name = nameof(Get))]
-        public async Task<ActionResult<EmployeeEntity>> Get(int id)
+        [HttpGet("{id:int}", Name = nameof(Get))]
+        public async Task<ActionResult<EmployeeEntity>> GetById(int id)
         {
             var employee = await _employeeService.GetById(id);
             if (employee == null)
@@ -42,19 +42,37 @@ namespace MTechSystemApi.Controllers
             return employee;
         }
 
+
+        [HttpGet("rfc/{rfc}", Name = nameof(GetByRfc))]
+        public async Task<ActionResult<EmployeeEntity>> GetByRfc( string rfc)
+        {
+            var employee = await _employeeService.GetByRfc(rfc);
+            if (employee == null)
+            {
+                return NotFound();
+            }
+            employee.Href = Url.Link(nameof(GetByRfc), new { rfc = rfc });
+
+            return employee;
+        }
+
         // POST api/<EmployeeController>
         [HttpPost(Name = nameof(Post))]
+        [ProducesResponseType(201)]
         public async Task<ActionResult<EmployeeEntity>> Post([FromBody] EmployeeRequest employee)
         {
             if ((int)employee.Status <= 0 || (int)employee.Status > 3)
             {
                 employee.Status = EmployeeStatus.NotSet;
             }
+            
 
             if(RfcValido(employee.RFC) == false)
             {
-                return BadRequest("The fiel RFC has not valid value");
+                return BadRequest("The fiel RFC has not a valid value");
             }
+
+            employee.RFC = employee.RFC.ToUpper();
 
             var newEmployee = await _employeeService.Save(employee);
             if (newEmployee == null)

@@ -4,7 +4,7 @@ namespace MTechSystemApi.Services
 {
     public interface IEmployeeService
     {
-        Task<List<EmployeeEntity>> GetAll();
+        Task<List<EmployeeEntity>> GetAll(string name);
 
         Task<EmployeeEntity> GetById(int id);
         Task<EmployeeEntity> GetByRfc(string rfc);

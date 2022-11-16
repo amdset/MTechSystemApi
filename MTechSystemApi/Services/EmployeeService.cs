@@ -19,10 +19,16 @@ namespace MTechSystemApi.Services
             _connMysql = _configuration.GetConnectionString("mysql_conn_db");
         }
 
-        public async Task<List<EmployeeEntity>> GetAll()
+        public async Task<List<EmployeeEntity>> GetAll(string name)
         {
             string sql = "SELECT * FROM Employee";
-            var lstEmployees = await _dataAccess.LoadData<EmployeeEntity>(sql, null, _connMysql);
+            var parameters = new { name = $"%{name}%" };
+            if (!string.IsNullOrWhiteSpace(name))
+            {
+                sql += " WHERE Name like @name";
+            }           
+
+            var lstEmployees = await _dataAccess.LoadData<EmployeeEntity>(sql, parameters, _connMysql);
             return lstEmployees.OrderBy(e => e.BornDate).ToList();
         }
 

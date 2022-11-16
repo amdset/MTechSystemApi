@@ -1,4 +1,5 @@
-﻿using MTechSystemApi.DataAccess;
+﻿using AutoMapper;
+using MTechSystemApi.DataAccess;
 using MTechSystemApi.Models;
 
 namespace MTechSystemApi.Services
@@ -7,12 +8,14 @@ namespace MTechSystemApi.Services
     {
         private readonly IConfiguration _configuration;
         private readonly IDataAccess _dataAccess;
+        private readonly IMapper _mapper;
         private readonly string _connMysql;
 
-        public EmployeeService(IConfiguration configuration, IDataAccess dataAccess)
+        public EmployeeService(IConfiguration configuration, IDataAccess dataAccess, IMapper mapper)
         {
             _configuration=configuration;
             _dataAccess=dataAccess;
+            _mapper=mapper;
             _connMysql = _configuration.GetConnectionString("mysql_conn_db");
         }
 
@@ -57,7 +60,7 @@ namespace MTechSystemApi.Services
             return result>0;
         }
 
-        public async Task<EmployeeEntity> Save(EmployeeEntity employee)
+        public async Task<EmployeeEntity> Save(EmployeeRequest employee)
         {
             string sql = @"INSERT INTO Employee(Name, LastName, RFC, BornDate, Status)
 VALUES(@Name, @LastName, @RFC, @BornDate, @Status)";
@@ -68,10 +71,12 @@ VALUES(@Name, @LastName, @RFC, @BornDate, @Status)";
                 return null;
             }
 
-            return employee;
+            var newEmployee = await GetByRfc(employee.RFC);
+
+            return newEmployee;
         }
 
-        public async Task<bool> Update(int id, EmployeeEntity employee)
+        public async Task<bool> Update(int id, EmployeeRequest employee)
         {
             string sql = "UPDATE Employee SET Name=@Name, LastName=@LastName, BornDate=BornDate, Status=@Status WHERE ID=@ID ";
             var employeeToUpdate = await GetById(id);

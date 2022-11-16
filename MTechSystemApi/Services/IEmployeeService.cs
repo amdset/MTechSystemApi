@@ -9,9 +9,9 @@ namespace MTechSystemApi.Services
         Task<EmployeeEntity> GetById(int id);
         Task<EmployeeEntity> GetByRfc(string rfc);
 
-        Task<EmployeeEntity> Save(EmployeeEntity employee);
+        Task<EmployeeEntity> Save(EmployeeRequest employee);
 
-        Task<bool> Update(int id,EmployeeEntity employee);
+        Task<bool> Update(int id,EmployeeRequest employee);
 
         Task<bool> DeleteById(int id);
         Task<bool> DeleteByRfc(string rfc);

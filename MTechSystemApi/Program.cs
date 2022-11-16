@@ -1,4 +1,5 @@
 using MTechSystemApi.DataAccess;
+using MTechSystemApi.Infrastructure;
 using MTechSystemApi.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +12,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<IDataAccess, MysqlDataAccess>();
 builder.Services.AddSingleton<IEmployeeService, EmployeeService>();
+builder.Services.AddAutoMapper(options =>
+           options.AddProfile<MappingProfile>());
 
 var app = builder.Build();
 
